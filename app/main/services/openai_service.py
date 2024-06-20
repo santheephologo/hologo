@@ -96,3 +96,6 @@ class OpenAIService:
                     if key == "name":  # if there's a name, the role is omitted
                         num_tokens += -1  # role is always required and always 1 token
             num_tokens += 2  # every reply is primed with <im_start>
+            return num_tokens
+        else:
+            raise NotImplementedError(f"""num_tokens_from_messages() is not presently implemented for model {model}.""")
