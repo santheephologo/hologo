@@ -12,6 +12,7 @@ class OpenAIService:
         }
 
         response = requests.post(url, headers=headers)
+        print('response: ',response.json())
         return response.json()['id']
 
     def sendMessageThread(self, apiToken, threadID, message):
@@ -28,7 +29,7 @@ class OpenAIService:
         }
 
         num_tokens = self.num_tokens_from_messages([data])
-        print(f"No. of tokens in the message: {num_tokens}")
+        print(f"No. of tokens in request: {num_tokens}")
 
         response = requests.post(url, headers=headers, json=data)
         return response.json()
@@ -64,12 +65,18 @@ class OpenAIService:
             'OpenAI-Beta': 'assistants=v2'
         }
         response = requests.get(url, headers=headers)
-        return response.json()['data'][0]['content'][0]['text']['value']
+        reply_data = response.json()['data'][0]['content'][0]['text']['value']
+        reply_tokens = self.num_tokens_from_messages([{"role": "assistant", "content": reply_data}])
+        print(f"No. of tokens in reply: {reply_tokens}")
+        return reply_data
+
+        # return response.json()['data'][0]['content'][0]['text']['value']
 
     def connectAi(self, apiToken, message, assistant_ID):
         threadID = self.createThread(apiToken)
         if threadID:
             self.sendMessageThread(apiToken, threadID, message)
+
             runID = self.runThread(apiToken, threadID, assistant_ID)
             if runID:
                 status = ''
@@ -99,3 +106,4 @@ class OpenAIService:
             return num_tokens
         else:
             raise NotImplementedError(f"""num_tokens_from_messages() is not presently implemented for model {model}.""")
+
