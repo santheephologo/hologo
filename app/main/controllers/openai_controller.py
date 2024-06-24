@@ -65,7 +65,10 @@ def convo():
 
         if not client:
             return jsonify({"error": "Client not found"}), 404
-
+        
+        if (len(message) >=0 and client.tkns_remaining <= 8) or (len(message) >=16 and client.tkns_remaining <= 16) or (len(message) >= client.tkns_remaining ):
+            return jsonify({"error": "Token limit exceeded"}), 402
+        
         if message:
             openai_tkn = current_app.config['OPENAI_API_TOKEN']
             assistant_id = current_app.config['ASSISTANT_ID']
